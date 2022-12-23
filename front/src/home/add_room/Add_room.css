@@ -1,0 +1,49 @@
+.submit{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0px;
+    gap: 9px;
+
+    width: 100%;
+    height: auto;
+}
+
+.react-select-container{
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-items: center;
+
+    width: 100%;
+    height: 40px;
+
+    background-color: #0C0E12;
+    /* Support-Dark/Stroke */
+    color: #43527C;
+
+    border-radius: 8px;
+}
+.react-select__control {
+    gap: 8px;
+    width: 100%;
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-items: center;
+    background-color: #0C0E12 !important;
+    /* Support-Dark/Stroke */
+    color: #43527C;
+
+    border: 1px solid #004CCC;
+    border-radius: 8px;
+}
+
+.react-select__value-container{
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+}
