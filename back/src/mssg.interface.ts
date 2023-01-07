@@ -1,23 +1,13 @@
 import { LegacyCharacterEncoding } from "crypto";
 import { Socket, Server } from 'socket.io';
-
-export declare interface Mssg {
-    name: string;
-    text: string;
-    time: number;
-  }
-
-export declare interface Room{
-    name: string;
-    mssg: Mssg[];
-    status: number; //0: public, 1: private
-  }
+import { UniqueNamesGenerator } from "unique-names-generator/dist/unique-names-generator.constructor";
 
 
-export class Msssg implements Mssg{
+export class Msssg {
+
   name: string;
   text: string;
-  time: number;
+  time: number; //date
 
   constructor(name: string, text: string)
   {
@@ -28,17 +18,38 @@ export class Msssg implements Mssg{
 
   }
 }
-export class roooms implements Room {
+
+
+export class roooms {
+
+
+
   name: string;
+
+  socketname: string;
+
   mssg: Msssg[];
-  status: number;
+  password: string;
+  status: number;  //0:private, 1:public, 2:protected
   users: User[];
+  isdm: number;
+  banned: Banned[];
+  muted: Banned[];
+
+  owner: User;
+
+  admins: User[];
 
   constructor(name: string) {
     this.name = name;
     this.mssg = []
-    this.status = 0;
+    this.isdm = 0;
+    this.status = 1;
+    this.owner = undefined
     this.users = [];
+    this.admins = [];
+    this.muted = [];
+    this.banned = [];
   }
 
   setMssg(mssg: Msssg): void {
@@ -51,14 +62,29 @@ export class roooms implements Room {
   }
 }
 
+
+
 export class User{
   user_name: string;
+
+
   socket: Socket;
+  rooms: roooms[];
+
   constructor(socket: Socket, name: string) {
     this.socket = socket;
     this.user_name = name;
+    this.rooms = []
   }
-  
+}
 
-
+export class Banned{
+  room: string;
+  endof: number;  //date
+  user_name: string;
+  constructor(room: string, user_name: string, endof: number){
+    this.endof = endof;
+    this.user_name = user_name;
+    this.room = room;
+  }
 }
