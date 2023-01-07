@@ -1,0 +1,103 @@
+.submit{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0px;
+    gap: 9px;
+
+    width: 100%;
+    height: auto;
+}
+
+.react-select-container{
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-items: center;
+
+    width: 100%;
+    height: 40px;
+
+    background-color: #0C0E12;
+    /* Support-Dark/Stroke */
+    color: #43527C;
+
+    border-radius: 8px;
+}
+.react-select__control {
+    gap: 8px;
+    width: 100%;
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-items: center;
+    background-color: #0C0E12 !important;
+    /* Support-Dark/Stroke */
+    color: #43527C;
+
+    border: 1px solid #004CCC;
+    border-radius: 8px;
+}
+
+.react-select__value-container{
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+}
+
+.passw{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    height: 40px;
+
+    border-radius: 24px;
+}
+.passwcomp{
+    box-sizing: border-box;
+
+/* Auto layout */
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px  7px;
+    gap: 8px;
+
+    width: 200px;
+    height: 28px;
+    color: #43527C;
+    /* Support-Dark/Stroke */
+    background: none;
+    border: 1px solid #004CCC;
+    border-radius: 8px;
+}
+.passwcomp[input=submit]{
+    width: auto;
+    height: auto;
+
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+
+    color: #8A898E;
+
+    mix-blend-mode: normal;
+}
+
+.passwstitel{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px 7px 0px 0px;
+
+    width: 63px;
+    height: 18px;
+}

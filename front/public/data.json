@@ -1,0 +1,57 @@
+
+
+
+{"data" :{
+    "users" : [
+        { "user_name": "hakim" },
+        { "user_name": "omar" },
+        { "user_name": "samir" }
+      ],
+      "rooms": [
+        {
+            "name": "omarhakim",
+            "mssg": [{"name": "omar", "text": "wzeeeesh"}],
+            "isdm": 1,
+            "status": 0,
+            "owner": "undefined",
+            "users": [ { "user_name": "hakim" }, { "user_name": "omar" } ],
+            "admins": [],
+            "muted": [],
+            "banned": []
+          },
+          {
+            "name": "samirhakim",
+            "mssg": [],
+            "isdm": 1,
+            "status": 0,
+            "owner": "undefined",
+            "users": [ { "user_name": "samir" }, { "user_name": "hakim" } ],
+            "admins": [],
+            "muted": [],
+            "banned": []
+          },
+          {
+            "name": "samiromar",
+            "mssg": [],
+            "isdm": 1,
+            "status": 0,
+            "owner": "undefined",
+            "users": [ { "user_name": "samir" }, { "user_name": "omar" } ],
+            "admins": [],
+            "muted": [],
+            "banned": []
+          },{
+            "name": "naslmlah",
+            "mssg": [],
+            "isdm": 0,
+            "status": 2,
+            "passw": "1234",
+            "owner": { "user_name": "samir" },
+            "users": [ { "user_name": "samir" }, { "user_name": "omar" } ],
+            "admins": [{ "user_name": "samir" }],
+            "muted": [],
+            "banned": []
+          }
+      ]
+}
+}
