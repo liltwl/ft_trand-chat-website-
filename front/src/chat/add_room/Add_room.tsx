@@ -5,6 +5,7 @@ import { useState } from 'react';
 import TopButton from '../TopButton'
 import '../live_chat/room_info/room_info.css'
 import './Add_room.css'
+import { useGlobalContext} from '../Context'
 
 const fill = require('../../img/Fill.svg').default as string;
 const fill1 = require('../../img/Arrow2.svg').default as string;
@@ -86,6 +87,7 @@ const Passw = (props:any) =>{
 
 const Add_room = (props:any) => {
     const [stt,setStt] = useState("0") ; //0:private, 1:public, 2:protected
+
     const handle_submit = () => {
         if ((document.getElementById('3') as HTMLInputElement)?.value !== ""){
             // socket.emit('createRoom', {name:document.getElementById('3').value, status: stt,pass:document.getElementById('passw')?.value});

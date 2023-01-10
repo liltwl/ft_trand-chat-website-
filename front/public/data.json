@@ -28,7 +28,7 @@
             "users": [ { "user_name": "samir" }, { "user_name": "hakim" } ],
             "admins": [],
             "muted": [],
-            "banned": []
+            "banned": [{"user_name":"samir"}]
           },
           {
             "name": "samiromar",

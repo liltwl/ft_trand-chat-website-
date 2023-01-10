@@ -6,10 +6,14 @@ import './sh.css'
 import '../Home.css'
 import TopButton from '../TopButton'
 import Opt from '../live_chat/room_info/Opt';
+import { useGlobalContext } from '../Context'
+
+
 const fill = require('../../img/Fill.svg').default as string;
 const add = require('../../img/+.svg').default as string;
 const Option = require('../../img/Options.svg').default as string;
 const ava = require('../../img/avatar.jpg') as string;
+
 
 const S_chat_topbar = (props: any) => {
 
@@ -28,7 +32,7 @@ const S_chat_topbar = (props: any) => {
 
 
 const User = (props: any) =>{
-   
+    const { setRoom } = useGlobalContext()
     const [style, setstyle] = useState({display:"none"})
     const onClickOutside = () => setstyle({display:"none"});
     const ref = React.useRef<HTMLInputElement>(null);
@@ -57,7 +61,7 @@ const User = (props: any) =>{
             handle_submit = () =>{
             props?.onClick("1")
             props?.setoUser(props?.user)
-            props.setRoom(props.room1)
+            setRoom(props.room1)
             props?.setSlct(true)
         }
         body = <div ref={ref}> <img src={Option} alt="" onClick={() => {if(style.display === "none") setstyle({display:"flex"}); else setstyle({display:"none"}); }}/>
@@ -82,11 +86,12 @@ const User = (props: any) =>{
 
 
 const Search = (props: any)  => {
-    console.log(props.users)
-    if (props?.users)
-        var users = props.users.slice(0).reverse().map((user: any, index: number) => { 
-            if (user?.user_name && props.user.user_name !== user?.user_name && !props?.room_users?.find((m:any)=>user?.user_name === m?.user_name)) 
-            return(<User socket={props.socket} setRoom={props.setRoom} room={props?.room} room1={props.rooms.find((m:any)=> m.users.find((m:any)=>m.user_name===user.user_name))} adduser={props?.adduser} setSlct={props.setSlct} setoUser={props.setoUser} onClick={props.setStatus} key={index}  user={user}/>)})
+    const { user, users, rooms } = useGlobalContext()
+    console.log(rooms)
+    if (users)
+        var users_p = users.slice(0).reverse().map((user_tmp: any, index: number) => { 
+    if (user_tmp?.user_name && user?.user_name !== user_tmp?.user_name && !props?.room_users?.find((m:any)=>user_tmp?.user_name === m?.user_name)) 
+    return(<User socket={props.socket}  room1={rooms.find((m:any)=> (m?.users?.find((m:any)=>m.user_name===user_tmp.user_name)&&m.users.find((m:any)=>user.user_name===m.user_name)))} adduser={props?.adduser} setSlct={props.setSlct} setoUser={props.setoUser} onClick={props.setStatus} key={index}  user={user_tmp}/>)})
     return (
         <>
         <S_chat_topbar setStatus={props.setStatus} title="Participants" />
@@ -94,7 +99,7 @@ const Search = (props: any)  => {
             <input className="M_input" placeholder="Search" type="text"/> 
         </div>
         <div className="users" >
-            {users}
+            {users_p}
         </div> 
         </>
     );

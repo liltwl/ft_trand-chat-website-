@@ -1,16 +1,18 @@
 import * as React from 'react';
 import './DM.css'
 import Avatar from './Avatar'
+import { useGlobalContext } from '../Context'
 
 const avatar = require('../../img/avatar.jpg') as string;
 const vector = require('../../img/Vector_white.svg').default as string;
 
 const Mssg = (props: any) =>{
+    const { setRoom} = useGlobalContext()
 
     if ((props?.isDM | props?.isRoom)){
 
         var handle_submit = () => {
-            props?.setRoom(props?.room)
+            setRoom(props?.room)
             props?.onClick("1")
             if (props?.isDM)
                 props?.setoUser();

@@ -8,6 +8,7 @@ import TopButton from '../../TopButton'
 import "./room_info.css"
 import "../../add_room/Add_room.css"
 import Opt from "./Opt"
+import { useGlobalContext } from '../../Context'
 
 const fill = require('../../../img/Fill.svg').default as string;
 const Option = require('../../../img/Options.svg').default as string;
@@ -17,7 +18,6 @@ const exit = require('../../../img/exit.svg').default as string;
 const ava = require('../../../img/avatar.jpg') as string;
 const del = require('../../../img/delete.svg').default as string;
 const add = require('../../../img/+.svg').default as string;
-
 
 
 
@@ -52,7 +52,7 @@ const Schattopbar = (props: any) => {
                 <Opt text='Add user' img={add} onClick={() => props.setStat("2")} />}
                 <Opt text='EXIT' style={{color:"#FF0000"}} img={exit}  onClick={() => {props.setStatus("0")}} />
                 {props.isadmin === false &&
-                <Opt text='Delete' style={{color:"#FF0000"}} img={del} onClick={() => {props.setStatus("0")}} />}
+                <Opt text='Delete' style={{color:"#FF0000"}} img={del} onClick={() => {props.setStatus("0")}} />} 
             </div>
             </div>
         </div>
@@ -90,6 +90,7 @@ const Room = (props:any) =>{
     const [stat, setStat] = useState(true)
     const [name,setName] = useState(props.name)
     const [add_pic, setadd_pic] = useState(<></>)
+    
 
 
     if (stat === true)    
@@ -120,6 +121,9 @@ const Room = (props:any) =>{
 
 
 const User = (props:any) =>{
+
+
+
     const [style, setstyle] = useState({display:"none"})
     const onClickOutside = () => setstyle({display:"none"});
     const ref = React.useRef<HTMLInputElement>(null);
@@ -174,31 +178,33 @@ const Passw = (props:any) =>{
 
 
 const  Room_info = (props:any) => {
-    const [stt,setStt]  = useState(props.room.status.toString(10) as string ) ; //0:private, 1:public, 2:protected
-    const [sh,setsh] = useState("");
-    const [passw,setpassw] = useState(props?.room?.passw as string);
-    if (props?.users)
-        var users = props.room?.users.map((user:any, index:number) => { return(<User is_user_admin={!props.room.admins.find((m:any)=>props.user.user_name===m.user_name)} isadmin={!props.room.admins.find((m:any)=>user.user_name===m.user_name)} key={index} name={props.user.user_name} user={user}/>)})
-        
-    var search = <div className="s_search" style={{ padding: "0px", width:sh,transition: "all 0.5s"}}>
-    <input className="M_input"  placeholder="Search" type="text" onSelect={() => setsh("100%")} onBlur={(e) => { if (!e.target.value) setsh("32px") }}/> 
-    </div>
+    const { user, room } = useGlobalContext()
 
-    if(stt === "2" && props.room?.owner?.user_name === props.user.user_name)
+    const [stt,setStt]  = useState(room.status.toString(10) as string ) ; //0:private, 1:public, 2:protected
+    const [sh,setsh] = useState("");
+    const [passw,setpassw] = useState(room?.passw as string);
+
+    var users_p = room?.users.map((user1:any, index:number) => { return(<User is_user_admin={!room.admins.find((m:any)=>user.user_name===m.user_name)} isadmin={!room.admins.find((m:any)=>user1.user_name===m.user_name)} key={index} name={user1.user_name} user={user}/>)})
+        
+
+
+    if(stt === "2" && room?.owner?.user_name === user.user_name)
         var pass = <Passw value={passw} setpassw={setpassw}/>
     return (
         <>
-        <Schattopbar isadmin={!props.room.admins.find((m:any)=>props.user.user_name===m.user_name)} socket={props.socket} room={props.room} setStat={props.setStat} setStatus={props.setStatus} title="Room info"  />
+        <Schattopbar isadmin={!room.admins.find((m:any)=>user.user_name===m.user_name)}  setStat={props.setStat} setStatus={props.setStatus} title="Room info"  />
         <div className="room_body">
-            <Room isadmin={!props.room.admins.find((m:any)=>props.user.user_name===m.user_name)} name={props.room.name}/>
-            <Security  setStt={setStt} isowner={props.user.user_name === props.room.owner.user_name} stt={stt}/>
+            <Room isadmin={!room.admins.find((m:any)=>user.user_name===m.user_name)} name={room.name}/>
+            <Security  setStt={setStt} isowner={user.user_name === room.owner.user_name} stt={stt}/>
             {pass}
             <div className="search_tab">
                 <ul>Participants</ul>
-                    {search}
+                <div className="s_search" style={{ padding: "0px", width:sh,transition: "all 0.5s"}}>
+                    <input className="M_input"  placeholder="Search" type="text" onSelect={() => setsh("100%")} onBlur={(e) => { if (!e.target.value) setsh("32px") }}/> 
+                 </div>
             </div>
         <div className="users" style={{width: "100%",padding:"0px"}} >
-            {users}
+            {users_p}
         </div>
         </ div>
         </>
