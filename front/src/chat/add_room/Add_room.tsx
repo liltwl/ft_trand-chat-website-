@@ -5,14 +5,14 @@ import { useState } from 'react';
 import TopButton from '../TopButton'
 import '../live_chat/room_info/room_info.css'
 import './Add_room.css'
-import { useGlobalContext} from '../Context'
+// import { useGlobalContext} from '../Context'
 
 const fill = require('../../img/Fill.svg').default as string;
 const fill1 = require('../../img/Arrow2.svg').default as string;
 const ava = require('../../img/avatar.jpg') as string;
 const addd_pic = require('../../img/add_pic.svg').default as string;
 
-const S_chat_topbar = (props: any) => {
+const SChatTopbar = (props: any) => {
 
     return (
         <div className="Chat-top-bar" /*s_padding={{padding: '14px 14px'}}*/ >
@@ -32,7 +32,7 @@ const Room = (props:any) =>{
 
     return (
         <div className="Room_pic">
-            <img src={ava} className="avatar" />
+            <img src={ava} alt='' className="avatar" />
             <div className='yoyo'  >
                 <img src={addd_pic} className='yoyo_img' style={{paddingTop: "10px"}} alt=""/>
                 <ul className='yoyo_title'>Change room icon </ul> 
@@ -85,7 +85,7 @@ const Passw = (props:any) =>{
 
 
 
-const Add_room = (props:any) => {
+const Addroom = (props:any) => {
     const [stt,setStt] = useState("0") ; //0:private, 1:public, 2:protected
 
     const handle_submit = () => {
@@ -98,7 +98,7 @@ const Add_room = (props:any) => {
 
     return (
         <>
-        <S_chat_topbar setStatus={props.setStatus} title="Room"  />
+        <SChatTopbar setStatus={props.setStatus} title="Room"  />
         <div className="room_body">
             <Room name={props.room?.name}/>
         <Security  setStt={setStt} stt={stt}/>
@@ -111,4 +111,4 @@ const Add_room = (props:any) => {
     );
 }
 
-export default Add_room;
+export default Addroom;

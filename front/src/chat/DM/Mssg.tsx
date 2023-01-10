@@ -21,7 +21,7 @@ const Mssg = (props: any) =>{
     }
 
     return (
-    <div  className="mssg" style={props?.style} >
+    <div  className="mssg" style={props?.style}  >
         <Avatar src={avatar} />
         <div className="c_text" onClick={handle_submit}>
             <div className="c_user">

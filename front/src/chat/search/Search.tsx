@@ -15,7 +15,7 @@ const Option = require('../../img/Options.svg').default as string;
 const ava = require('../../img/avatar.jpg') as string;
 
 
-const S_chat_topbar = (props: any) => {
+const SChatTopbar = (props: any) => {
 
     return (
         <div className="Chat-top-bar" >
@@ -62,7 +62,7 @@ const User = (props: any) =>{
             props?.onClick("1")
             props?.setoUser(props?.user)
             setRoom(props.room1)
-            props?.setSlct(true)
+            props?.setSlct('0')
         }
         body = <div ref={ref}> <img src={Option} alt="" onClick={() => {if(style.display === "none") setstyle({display:"flex"}); else setstyle({display:"none"}); }}/>
                 <div style={style} className="dropdown-content">
@@ -89,12 +89,13 @@ const Search = (props: any)  => {
     const { user, users, rooms } = useGlobalContext()
     console.log(rooms)
     if (users)
-        var users_p = users.slice(0).reverse().map((user_tmp: any, index: number) => { 
+        var users_p = users.reverse().map((user_tmp: any, index: number) => { 
     if (user_tmp?.user_name && user?.user_name !== user_tmp?.user_name && !props?.room_users?.find((m:any)=>user_tmp?.user_name === m?.user_name)) 
-    return(<User socket={props.socket}  room1={rooms.find((m:any)=> (m?.users?.find((m:any)=>m.user_name===user_tmp.user_name)&&m.users.find((m:any)=>user.user_name===m.user_name)))} adduser={props?.adduser} setSlct={props.setSlct} setoUser={props.setoUser} onClick={props.setStatus} key={index}  user={user_tmp}/>)})
+        return(<User socket={props.socket}  room1={rooms.find((m:any)=> (m?.users?.find((m:any)=>m.user_name===user_tmp.user_name)&&m.users.find((m:any)=>user.user_name===m.user_name)))} adduser={props?.adduser} setSlct={props.setSlct} setoUser={props.setoUser} onClick={props.setStatus} key={index}  user={user_tmp}/>)
+    return undefined;})
     return (
         <>
-        <S_chat_topbar setStatus={props.setStatus} title="Participants" />
+        <SChatTopbar setStatus={props.setStatus} title="Participants" />
         <div className="search" >
             <input className="M_input" placeholder="Search" type="text"/> 
         </div>

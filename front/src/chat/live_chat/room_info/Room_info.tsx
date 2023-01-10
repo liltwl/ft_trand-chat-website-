@@ -177,7 +177,7 @@ const Passw = (props:any) =>{
 }
 
 
-const  Room_info = (props:any) => {
+const  Roominfo = (props:any) => {
     const { user, room } = useGlobalContext()
 
     const [stt,setStt]  = useState(room.status.toString(10) as string ) ; //0:private, 1:public, 2:protected
@@ -211,4 +211,4 @@ const  Room_info = (props:any) => {
     )
 }
 
-export default  Room_info;
+export default  Roominfo;

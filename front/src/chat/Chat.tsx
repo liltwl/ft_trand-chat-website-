@@ -4,13 +4,12 @@ import axios from 'axios'
 import { useState } from 'react';
 import DM from './DM/DM'
 import './DM/DM.css'
-import L_chat from './live_chat/L_chat'
+import Lchat from './live_chat/L_chat'
 import Search from './search/Search'
 import TopButton from './TopButton'
 import { useCallback,useEffect } from 'react';
-import Add_room from './add_room/Add_room'
+import Addroom from './add_room/Add_room'
 import { MyGlobalContext,useGlobalContext } from './Context'
-import { stat } from 'fs';
 
 
 
@@ -45,7 +44,7 @@ const Tab = (props: any) => {
 
 
 
-const Chat_top_bar = (props: any) => {
+const ChatTopBar = (props: any) => {
     return (
         <div className="Chat-top-bar">
             <TopButton src={Vector} s_padding={{padding: '12px 16px'}} />
@@ -59,7 +58,7 @@ const Chat_top_bar = (props: any) => {
 
 
 
-const Home_p = (props: any) => {
+const Homep = (props: any) => {
     // const Haneselect = () => props?.setSlct(!props?._slct);
     const { setSlct,slct } = useGlobalContext()
 
@@ -69,7 +68,7 @@ const Home_p = (props: any) => {
         swahh = <DM isRoom={true}  setStatus={props?.setStatus} onClick={props?.setStatus}/> ;
     return (
     <>
-        <Chat_top_bar value={props.value} setStatus={props?.setStatus} />
+        <ChatTopBar value={props.value} setStatus={props?.setStatus} />
         <div   className="Bars"  >
             <Tab title="DM" selected={slct==="0"} slct={slct} onClick={() => setSlct("0")}/>
             <Tab title="ROOM" selected={slct==="1"} slct={slct}  onClick={() => setSlct("1")}/>
@@ -84,7 +83,7 @@ const Home_p = (props: any) => {
 
 
 
-const Home = (props: any) => {
+const Chat = () => {
 
     const [status, setStatus] = useState("0"); // 0: normal, 1: livechat , 2: members, 3: add_room
     const [slct, setSlct] = useState("0") as any;  // 0 :room and 1 DM
@@ -138,22 +137,22 @@ const Home = (props: any) => {
             setStatus(JSON.parse(status1))
         if (JSON.parse(slct1))    
             setSlct(JSON.parse(slct1))
-    },[getUser])      
+    },[getUser,getstatus,getslct])      
     
     
     useEffect(()=>{
-    if (status)
-        setstatus_tostor(status);
-    if (slct)    
-        setslct_tostor(slct)
-    if (room)    
-        setroomid_tostor(room?.name)
-        }, [status, slct,room])
+        if (status)
+            setstatus_tostor(status);
+        if (slct)    
+            setslct_tostor(slct)
+        if (room)    
+            setroomid_tostor(room?.name)
+    }, [status, slct,room])
     
         
 
 
-
+        
 
     const messageset = (message: any) => {
         if (message)
@@ -174,18 +173,18 @@ const Home = (props: any) => {
                     setoUser(tmproom.users.find((m:any)=>m.user_name !== JSON.parse(getUser()).user_name))
             }
         })
-    } , [])
+    } , [getUser,getroom_name])
     
     
     if (!user?.user_name)
         var user_p = <div className="user_h"><div className="user_p"><ul>name :</ul><div className="user_input" ><input type="text" className="mssginput" id="1" name="input" placeholder="Say something"  ></input><TopButton onClick={(y:any)=>{setUser({user_name:(document.getElementById('1') as HTMLInputElement).value});setuser_tostor({user_name: (document.getElementById('1') as HTMLInputElement).value})}} src={Vector} s_padding={{padding: '12px 16px'}} /></div> </div></div>
    
     if (status === "0")
-        var body = <Home_p setoUser={setoUser} value={users.length - 1} otheruser={otheruser} user={user} _slct={slct} setMssgs={setMssgs} setRoom={setRoom} rooms={rooms} setSlct={setSlct} setStatus={setStatus} />;
+        var body = <Homep setoUser={setoUser} value={users.length - 1} otheruser={otheruser} user={user} _slct={slct} setMssgs={setMssgs} setRoom={setRoom} rooms={rooms} setSlct={setSlct} setStatus={setStatus} />;
     else if (status === "1")
-        body = <L_chat otheruser={otheruser} _slct={slct} users={users} user={user} room={room} mssgs={mssgs} setMssg={messageset}  setStatus={setStatus} />
+        body = <Lchat otheruser={otheruser} _slct={slct} users={users} user={user} room={room} mssgs={mssgs} setMssg={messageset}  setStatus={setStatus} />
     else if (status === "3")
-        body = <Add_room setStatus={setStatus} />
+        body = <Addroom setStatus={setStatus} />
     else
         body = <Search setoUser={setoUser} user={user} setSlct={setSlct} setStatus={setStatus} users={users}  />
 
@@ -200,4 +199,4 @@ const Home = (props: any) => {
     )
 };
 
-export default Home;
+export default Chat;
