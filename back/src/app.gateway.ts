@@ -6,7 +6,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { CacheKey, Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { RoomService } from './app.service';
 
@@ -28,37 +28,55 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connect: ${client.id}`);
+    
   }
   
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
+    await this.appService.deletesocket(client)
   }
   
   @SubscribeMessage('connection')
   async handleconnection(client: Socket, name: any): Promise<void> {
-    this.appService.adduser(client,name);
     this.logger.log(`Client connected: ${name} ${client.id}`);
+    await this.appService.addsocket(client, name);
+    // this.appService.adduser(client,name);
   }
   
   @SubscribeMessage('createRoom')
-    async createRoom(client: Socket, room: any): Promise<void> {
-    var tmp = this.appService.createroom(room?.name, Number(room?.status), room?.pass, client);
-    this.appService.emitChannel(client, 'RoomCreated', tmp, this.appService.getroom(tmp.name));
-  }
-
-
-  @SubscribeMessage('adduserToServer')
-  async addusertoroom(client: Socket, data: any): Promise<void> {
-    this.appService.addusertoroom(data.room_name , data.user_name, client);
+  async createRoom(client: Socket, room: any): Promise<void> {
+    // var tmp = this.appService.createroom(room?.name, Number(room?.status), room?.pass, client);
+    console.log("creat room", room)
+    this.appService.emitChannel(client, 'RoomCreated', undefined, {
+            name: room.name,
+            mssg: [],
+            isdm: 0,
+            status: room.status,
+            owner: {user_name: room.user_name},
+            users: [{user_name: room.user_name},],
+            admins: [{user_name: room.user_name}],
+            muted: [],
+            banned: []
+    });
   }
 
   private logger: Logger = new Logger('AppGateway');
-  // private Mssgs: MssgsService = new MssgsService();
   @SubscribeMessage('msgToServer')
   async handleMessage(client: Socket, payload: any): Promise<void> {
-  var tmp = this.appService.addmssg(payload?.room, payload?.mssg, client);
-  this.appService.emitChannel(client, 'msgToClient', tmp, { name:payload.room, mssg:[tmp.mssg[tmp.mssg.length - 1]]});
+  // var tmp = this.appService.addmssg(payload?.room, payload?.mssg, client);
+  console.log("messeg :" , payload)
+  this.appService.emitChannel(client, 'msgToClient', undefined, payload);
 }
+
+  @SubscribeMessage('adduserToServer')
+  async addusertoroom(client: Socket, data: any): Promise<void> {
+
+    // this.appService.addusertoroom(data.room_name , data.user_name, client);
+    this.appService.emitChannel(client, 'adduserToClient', undefined, data); //hadchi khassak tayafm3ah    { room_name:room.name, user_name: user.user_name}
+    console.log("add user :" , data)
+
+  }
+
 
   @SubscribeMessage('deleteToServer')
   async delete(client: Socket, data: any): Promise<void> {//data {room_name:string}
@@ -68,20 +86,37 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('leaveToServer')
   async leave(client: Socket, data: any): Promise<void> {  //data {room_name:string, user_name: string}
-    this.appService.userleave(client, data.room_name, data.user_name);  
+
+    console.log("delete user :" , data)
+
+    // this.appService.userleave(client, data.room_name, data.user_name);  
+    this.appService.emitChannel(client, 'leaveToClient', undefined, data); //hadchi khassak tayafm3ah    { room_name:room.name, user_name: user.user_name}
+
   }
 
 
   @SubscribeMessage('adminToServer')
   async admin(client: Socket, data: any): Promise<void> {  //data {room_name:string, user_name: string}
-    this.appService.addadmin(client, data.room_name, data.user_name); 
+    // this.appService.addadmin(client, data.room_name, data.user_name);
+    this.appService.emitChannel(client, 'adminToClient', undefined, data); //hadchi khassak tayafm3ah    { room_name:room.name, user_name: user.user_name}
   }
   
   @SubscribeMessage('bannedToServer')
   async ban(client: Socket, data: any): Promise<any> {//data {room_name:string, user_name: string, endof: date}
-    const tmp = this.appService.userban(client, data.room_name, data.user_name,155);
-    return tmp;
+    // const tmp = this.appService.userban(client, data.room_name, data.user_name,155);
+    console.log("ban user :" , data)
+
+    this.appService.emitChannel(client, 'bannedToClient', undefined, data); //hadchi khassak tayafm3ah    { room_name:room.name, user_name: user.user_name}
+    return 1;
   }
 
+  @SubscribeMessage('mutedToServer')
+  async muted(client: Socket, data: any): Promise<any> {//data {room_name:string, user_name: string, endof: date}
+    // const tmp = this.appService.userban(client, data.room_name, data.user_name,155);
+    console.log("muted user :" , data)
+    
+    this.appService.emitChannel(client, 'mutedToClient', undefined, data); //hadchi khassak tayafm3ah    { room_name:room.name, user_name: user.user_name}
+    return 1;
+  }
 
 }

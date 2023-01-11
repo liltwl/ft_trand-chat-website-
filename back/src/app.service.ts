@@ -5,26 +5,44 @@ import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'uniqu
 import { validateHeaderName } from 'http';
 import { Cipher } from 'crypto';
 import { map } from 'rxjs';
+import { lstat } from 'fs';
 
 
 @Injectable()
 export class RoomService {
   private Rooms = new Array<roooms>();//Room[] = [{name:"test",mssg: []}];
   private users = new Array<User>();
-  private sockets = new Array<Socket>();
+  private sockets = new Array<{user_name: string, client : Socket}>();
 
   emitChannel(client: Socket, event: string, room: roooms, data: any){
-    if (room?.status === 1)
-    {
-      this.users.map((user) => { user.socket.emit(event,data)})
-    }
-    else
-    {
-      room.users.map((user) => { user.socket.emit(event,data)})
-    }
+    this.sockets.map((socket) => { socket.client.emit(event,data)})
+  //   if (room?.status === 1)
+  //   {
+  //     this.sockets.map((socket) => { socket.client.emit(event,data)})
+  //   }
+  //   else
+  //   {
+  //     this.sockets.map((socket) => { socket.client.emit(event,data)})
+  //   }
   }
-  createroom(name: string, security: number, pass: string, client: Socket ): roooms { 
 
+  addsocket(client_:Socket, user_n: string){
+    this.sockets.push({user_name:user_n,client: client_})
+    console.log(this.sockets)
+  }
+
+  deletesocket(client:Socket)
+  {
+    var index = this.sockets.indexOf( this.sockets.find((socket)=>socket.client.id === client.id))
+    if (index !== undefined && index >= 0)
+      this.sockets.splice(index, 1);
+    console.log("delete socket :", index, "in :",this.sockets)
+  }
+
+
+
+
+  createroom(name: string, security: number, pass: string, client: Socket ): roooms {
     var room = this.Rooms.find((m) => m.name === name);
     var user = this.users.find((us) => us.socket.id === client.id)
     if (!room)
@@ -240,4 +258,6 @@ export class RoomService {
       room.mssg=[val.mssg[val.mssg.length - 1]];
       return room;
   }
+
+  
 }
