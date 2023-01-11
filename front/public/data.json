@@ -51,6 +51,17 @@
             "admins": [{ "user_name": "samir" }],
             "muted": [],
             "banned": []
+          },{
+            "name": "yoooooo",
+            "mssg": [],
+            "isdm": 0,
+            "status": 1,
+            "passw": "1234",
+            "owner": { "user_name": "samir" },
+            "users": [ { "user_name": "samir" }, { "user_name": "omar" } ],
+            "admins": [{ "user_name": "samir" }],
+            "muted": [],
+            "banned": []
           }
       ]
 }

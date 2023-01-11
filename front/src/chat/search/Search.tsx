@@ -32,7 +32,7 @@ const SChatTopbar = (props: any) => {
 
 
 const User = (props: any) =>{
-    const { setRoom } = useGlobalContext()
+    const { setRoom, socket, room, user } = useGlobalContext()
     const [style, setstyle] = useState({display:"none"})
     const onClickOutside = () => setstyle({display:"none"});
     const ref = React.useRef<HTMLInputElement>(null);
@@ -53,6 +53,10 @@ const User = (props: any) =>{
     if (props?.adduser)
     {
         var handle_submit = () => {
+            socket.emit('adduserToServer', {
+                room_name: room.name,
+                user_name: props.user.user_name,
+              });
             console.log("wsalna ")
         }
         var body=<img src={add} style={{cursor: "pointer"}} alt="" />

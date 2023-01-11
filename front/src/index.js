@@ -1,6 +1,7 @@
 import React from 'react';
 import App from './App'
 import { createRoot } from "react-dom/client";
+
 // ReactDOM.render(<App />, document.getElementById('root')) 
 
 // If you want to start measuring performance in your app, pass a function
@@ -11,5 +12,9 @@ const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
 
 root.render(
-    <App />
+    // <React.StrictMode>
+
+    <App  />
+    //  </React.StrictMode>
+
 );

@@ -7,12 +7,14 @@ const avatar = require('../../img/avatar.jpg') as string;
 const vector = require('../../img/Vector_white.svg').default as string;
 
 const Mssg = (props: any) =>{
-    const { setRoom} = useGlobalContext()
+    const { setRoom, setMssgs} = useGlobalContext()
 
     if ((props?.isDM | props?.isRoom)){
 
         var handle_submit = () => {
+            setMssgs([])
             setRoom(props?.room)
+
             props?.onClick("1")
             if (props?.isDM)
                 props?.setoUser();

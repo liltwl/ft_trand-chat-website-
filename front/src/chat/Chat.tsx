@@ -83,17 +83,17 @@ const Homep = (props: any) => {
 
 
 
-const Chat = () => {
+const Chat = (props:any) => {
 
-    const [status, setStatus] = useState("0"); // 0: normal, 1: livechat , 2: members, 3: add_room
-    const [slct, setSlct] = useState("0") as any;  // 0 :room and 1 DM
+    const [status, setStatus] = useState(undefined); // 0: normal, 1: livechat , 2: members, 3: add_room
+    const [slct, setSlct] = useState(undefined) as any;  // 0 :room and 1 DM
     
-    
+    const socket = props.socket
     
     const [user, setUser] = useState() as any;
-    const [room, setRoom] = useState() as any;
+    const [room, setRoom] = useState(undefined) as any;
     const [mssgs, setMssgs] = useState([])
-    const [rooms, setRooms] = useState();
+    const [rooms, setRooms] = useState([]);
     const [otheruser, setoUser] = useState(undefined); 
     const [users, setUsers] = useState([]);
 
@@ -127,17 +127,22 @@ const Chat = () => {
     }, []); 
 
     useEffect(() => {
+        console.log("connection")
         const user1 = getUser();
+        socket.emit("connection", (JSON.parse(user1)?.user_name))
         const status1 = getstatus();
         const slct1 = getslct();
         if((JSON.parse(user1)?.user_name))
             setUser(JSON.parse(user1));
-        console.log("status",JSON.parse(status1))
         if (JSON.parse(status1))    
             setStatus(JSON.parse(status1))
-        if (JSON.parse(slct1))    
+        else
+            setStatus("0")
+        if (JSON.parse(slct1))  
             setSlct(JSON.parse(slct1))
-    },[getUser,getstatus,getslct])      
+        else
+            setSlct("0")
+    },[getUser,getstatus,getslct,socket])      
     
     
     useEffect(()=>{
@@ -147,18 +152,11 @@ const Chat = () => {
             setslct_tostor(slct)
         if (room)    
             setroomid_tostor(room?.name)
-    }, [status, slct,room])
-    
-        
+    }, [status , slct,room])
 
 
-        
 
-    const messageset = (message: any) => {
-        if (message)
-            setMssgs(mssgs =>[...mssgs, {name: user.user_name,text: message}]);
-        console.log(mssgs)
-    };
+
     
     useEffect(()=> {
         axios.get('data.json').then((data) => {
@@ -170,19 +168,156 @@ const Chat = () => {
             if(room_name&&tmproom){
                 setRoom(tmproom)
                 if (tmproom.isdm)
-                    setoUser(tmproom.users.find((m:any)=>m.user_name !== JSON.parse(getUser()).user_name))
+                setoUser(tmproom.users.find((m:any)=>m.user_name !== JSON.parse(getUser()).user_name))
             }
         })
     } , [getUser,getroom_name])
     
+    // handling web socket 
+
+
+
+
+    // { room: props.room?.name,  mssg : { name: props.user?.user_name,text: message}}
+
     
+    const messageListener =  useCallback((message:any) => {
+        const tmp = rooms?.map((m:any) => {
+            if (m.name === message.room)
+                return {...m, mssg:[message.mssg]}
+            else
+                return m
+        });
+        setRooms(tmp);
+        if (room?.name === message.room)
+            setMssgs(mssgs =>[...mssgs, message.mssg]);
+    }, [rooms, room, mssgs])
+
+    
+    const creatRoom = useCallback((Room:any) =>{
+        setRooms(rooms =>[...rooms, Room]);
+        console.log("creatroom:");
+    }, [])
+
+
+    const adduser =  useCallback((data: { room_name:string, user_name: string}) => {
+
+        const tmp = rooms?.map((m) => {
+            if (m.name === data.room_name && !m.users.find((us:any)=>us.user_name ===  data.user_name))
+                return {...m, users:[...m.users,{user_name : data.user_name}]}
+            else
+                return m
+        });
+        setRooms(tmp);
+        if (room?.name === data.room_name)
+            setRoom(tmp.find((m) => m.name === data.room_name))
+    },[room?.name, rooms])
+
+    const addbanned =  useCallback((data: { room_name:string, user_name: string}) => {
+
+        const tmp = rooms?.map((m) => {
+            if (m.name === data.room_name && !m.banned.find((us:any)=>us.user_name ===  data.user_name))
+               {return {...m, banned:[...m.banned,{user_name : data.user_name}]}}
+            else if (m.name === data.room_name && m.banned.find((us:any)=>us.user_name ===  data.user_name))
+            {
+                return {...m, banned: m.banned.filter((m:any)=> m.user_name !== data.user_name)}
+            }
+            else
+                return m
+        });
+        setRooms(tmp);
+        if (room?.name === data.room_name)
+            setRoom(tmp.find((m) => m.name === data.room_name))
+        console.log("banned :", tmp)
+    }, [room?.name, rooms])
+    const deleteuser =  useCallback((data: { room_name:string, user_name: string}) => {
+
+        const tmp = rooms?.map((m) => {
+            if (m?.name === data.room_name && m.users.find((us:any)=>us.user_name ===  data.user_name))
+            {
+                return {...m, users: m.users.filter((m:any)=> m.user_name !== data.user_name)}
+            }
+            else
+                return m
+        });
+        setRooms(tmp);
+        if (room?.name === data.room_name)
+            setRoom(tmp.find((m) => m.name === data.room_name))
+        console.log("delete :", tmp)
+    }, [room?.name, rooms])
+    
+    const addmuted =  useCallback((data: { room_name:string, user_name: string}) => {
+
+        const tmp = rooms?.map((m) => {
+            if (m.name === data.room_name && !m.muted.find((us:any)=>us.user_name ===  data.user_name))
+               {return {...m, muted:[...m.muted,{user_name : data.user_name}]}}
+            else if (m.name === data.room_name && m.muted.find((us:any)=>us.user_name ===  data.user_name))
+            {
+                return {...m, muted: m.muted.filter((m:any)=> m.user_name !== data.user_name)}
+            }
+            else
+                return m
+        });
+        setRooms(tmp);
+        if (room?.name === data.room_name)
+            setRoom(tmp.find((m) => m.name === data.room_name))
+        console.log("muted :", tmp)
+    },[room?.name, rooms])
+    
+    const addadmin = useCallback((data: { room_name:string, user_name: string}) => {
+
+        const tmp = rooms?.map((m) => {
+            if (m.name === data.room_name && !m.admins.find((us:any)=>us.user_name ===  data.user_name))
+               {return {...m, admins:[...m.admins,{user_name : data.user_name}]}}
+            else if (m.name === data.room_name && m.admins.find((us:any)=>us.user_name ===  data.user_name))
+            {
+                return {...m, admins: m.admins.filter((m:any)=> m.user_name !== data.user_name)}
+            }
+            else
+                return m
+        });
+        setRooms(tmp);
+        if (room?.name === data.room_name)
+            setRoom(tmp.find((m) => m.name === data.room_name))
+        console.log("admin :", tmp)
+    },[room?.name, rooms])
+
+    useEffect(()=> {
+
+        socket.on('msgToClient', messageListener );
+        socket.on('RoomCreated', creatRoom);
+        socket.on('adduserToClient', adduser);
+        socket.on('bannedToClient', addbanned);
+        socket.on('leaveToClient', deleteuser);
+        socket.on('mutedToClient', addmuted);
+        socket.on('adminToClient', addadmin);
+
+        
+        return () => {
+            
+            socket.off('RoomCreated', creatRoom);
+            socket.off('msgToClient', messageListener);;
+            socket.off('adduserToClient', adduser);
+            socket.off('bannedToClient', addbanned);
+            socket.off('leaveToServer', deleteuser);
+            socket.off('mutedToClient', addmuted);
+            socket.off('adminToClient', addadmin);
+        };
+    }, [messageListener,creatRoom,adduser, addbanned,deleteuser,addmuted,addadmin,socket])
+
+        
+
+
+
+
+
     if (!user?.user_name)
         var user_p = <div className="user_h"><div className="user_p"><ul>name :</ul><div className="user_input" ><input type="text" className="mssginput" id="1" name="input" placeholder="Say something"  ></input><TopButton onClick={(y:any)=>{setUser({user_name:(document.getElementById('1') as HTMLInputElement).value});setuser_tostor({user_name: (document.getElementById('1') as HTMLInputElement).value})}} src={Vector} s_padding={{padding: '12px 16px'}} /></div> </div></div>
    
     if (status === "0")
         var body = <Homep setoUser={setoUser} value={users.length - 1} otheruser={otheruser} user={user} _slct={slct} setMssgs={setMssgs} setRoom={setRoom} rooms={rooms} setSlct={setSlct} setStatus={setStatus} />;
     else if (status === "1")
-        body = <Lchat otheruser={otheruser} _slct={slct} users={users} user={user} room={room} mssgs={mssgs} setMssg={messageset}  setStatus={setStatus} />
+        body = <Lchat otheruser={otheruser} _slct={slct} users={users} user={user} room={room} mssgs={mssgs}   setStatus={setStatus} />
     else if (status === "3")
         body = <Addroom setStatus={setStatus} />
     else
@@ -192,7 +327,7 @@ const Chat = () => {
       <>
 
 
-      <MyGlobalContext.Provider value={{room, setRoom, rooms, setRooms, user, setUser, users, setUsers, setMssgs, mssgs, otheruser, setoUser,setSlct,slct}}>
+      <MyGlobalContext.Provider value={{socket, room, setRoom, rooms, setRooms, user, setUser, users, setUsers, setMssgs, mssgs, otheruser, setoUser,setSlct,slct}}>
         {user_p}{body}
         </MyGlobalContext.Provider>
       </> 

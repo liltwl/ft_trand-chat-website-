@@ -34,7 +34,7 @@ background: #555;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    width: 100%;
+    width: 315px;
     height: auto;
 }
 
@@ -59,7 +59,8 @@ padding: 8px 0px 0px 8px;
     align-items: flex-start;
     padding: 8px;
     gap: 4px;
-    width: 100%
+    width: 315px;
+    
 }
 
 .c_user{
@@ -117,12 +118,12 @@ padding: 8px 0px 0px 8px;
 }
 
 .msssg{
-    width: auto;
+    width: 200px;
     height: auto;
-
+    word-wrap:break-word;
     font-family: 'Inter';
     font-style: normal;
-    font-weight: 400;
+    font-weight: 400px;
     font-size: 14px;
     line-height: 18px;
     color: #8A898E;

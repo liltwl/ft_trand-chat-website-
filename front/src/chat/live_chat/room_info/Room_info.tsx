@@ -122,7 +122,7 @@ const Room = (props:any) =>{
 
 const User = (props:any) =>{
 
-
+    const { user, room ,socket} = useGlobalContext()
 
     const [style, setstyle] = useState({display:"none"})
     const onClickOutside = () => setstyle({display:"none"});
@@ -151,17 +151,20 @@ const User = (props:any) =>{
 
 
             </div>
-            {props.is_user_admin === false && props.user.user_name !== props.name && <div ref={ref}>
+            {props.is_user_admin === false && user.user_name !== props.name && <div ref={ref}>
             <img src={Option} style={{cursor: "pointer"}} alt="" onClick={() => {if(style.display === "none") setstyle({display:"flex"}); else setstyle({display:"none"}); }} />
             <div id="myDropdown" style={style} className="dropdown-content"  >
-            {props?.isadmin ===true && <Opt text='Make room admin' />}
-                <Opt text='REMOVE' />
-                <Opt text='ban' />
+            {props?.isadmin ===true && <Opt text='Make room admin' onClick={()=>socket.emit('adminToServer', {room_name: room.name, user_name: props.user.user_name})}/>}
+                <Opt text='REMOVE' onClick={()=>socket.emit('leaveToServer', {room_name: room.name, user_name: props.user.user_name})} />
+                <Opt text={!room?.banned?.find((m:any)=>m.user_name===props?.user?.user_name)?'BAN':'banned'} onClick={()=>socket.emit('bannedToServer', {room_name: room.name, user_name: props.user.user_name})} />
+                <Opt text={!room?.muted?.find((m:any)=>m.user_name===props?.user?.user_name)?'mut':'muted'} onClick={()=>socket.emit('mutedToServer', {room_name: room.name, user_name: props.user.user_name})} />
             </div>
             </div>}
         </div>
     );
 }
+
+
 
 
 const Passw = (props:any) =>{
@@ -177,6 +180,10 @@ const Passw = (props:any) =>{
 }
 
 
+
+
+
+
 const  Roominfo = (props:any) => {
     const { user, room } = useGlobalContext()
 
@@ -184,7 +191,7 @@ const  Roominfo = (props:any) => {
     const [sh,setsh] = useState("");
     const [passw,setpassw] = useState(room?.passw as string);
 
-    var users_p = room?.users.map((user1:any, index:number) => { return(<User is_user_admin={!room.admins.find((m:any)=>user.user_name===m.user_name)} isadmin={!room.admins.find((m:any)=>user1.user_name===m.user_name)} key={index} name={user1.user_name} user={user}/>)})
+    var users_p = room?.users.map((user1:any, index:number) => { return(<User is_user_admin={!room.admins.find((m:any)=>user.user_name===m.user_name)} isadmin={!room.admins.find((m:any)=>user1.user_name===m.user_name)} key={index} name={user1.user_name} user={user1}/>)})
         
 
 

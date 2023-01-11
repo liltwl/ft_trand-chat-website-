@@ -31,7 +31,7 @@ const Opt = (props:any) => {
 
 const LChatTopbar = (props:any) => {
     const ref = React.useRef<HTMLInputElement>(null);
-    const { user, room } = useGlobalContext()
+    const { room, socket } = useGlobalContext()
 
     const [style, setstyle] = useState({display:"none"});
     const onClickOutside = () =>{ setstyle({display:"none"});}
@@ -39,6 +39,7 @@ const LChatTopbar = (props:any) => {
 
 
     useEffect(() => {
+      
         const handleClickOutside = (event: any) => {
           if (ref.current && !ref.current.contains(event.target)) {
             onClickOutside();
@@ -67,7 +68,7 @@ const LChatTopbar = (props:any) => {
                 <div ref={ref} >
             {online}
             <div id="myDropdown" style={style} className="dropdown-content" >
-                <Opt text='Block user' alt='' img={block}  onClick={()=>props?.socket.emit('bannedToServer', {room_name: room.name, user_name: user.user_name}, (m : any)=> console.log(m))}/>
+                <Opt text={ !room?.banned?.find((m:any)=>m.user_name===props?.otheruser?.user_name)?'Block user':'unblock user'} alt='' img={block}  onClick={()=>socket.emit('bannedToServer', {room_name: room.name, user_name: props.otheruser.user_name}, (m : any)=> console.log(m))}/>
             </div>
             </div>
         </div>
@@ -80,7 +81,7 @@ const Mssgs = (props:any) => {
 
   return (
     <div className="mssgs">
-        {props?.mssgs && props?.mssgs.map((mssg:any, index:number) => { if (mssg?.name) return(<Mssg key={index} name={mssg.name} mssg={mssg}/>); return<></>;})}
+        {props?.mssgs && props?.mssgs.slice(0).reverse().map((mssg:any, index:number) => { if (mssg?.name) return(<Mssg key={index} name={mssg.name} mssg={mssg}/>); return undefined;})}
     </div>
         );
 }
@@ -99,13 +100,13 @@ function useComponentVisible(setstatus: any) {
       return () => {
           document.removeEventListener('click', handleClickOutside, true);
       };
-  }, []);
+  });
 
   return { ref };
 }
 
 const Lchat = (props:any) => {
-    const { room, otheruser} = useGlobalContext()
+    const { room, otheruser, mssgs, socket} = useGlobalContext()
     const [stat, setStat] = useState("1")
     const [is, setis] = useState(0)
     const [pass, setpass] = useState(room?.status === 2?true:false)
@@ -122,25 +123,17 @@ const Lchat = (props:any) => {
     
     const handleSendMessage = (e: Event) => {
       e.preventDefault();
-      var message = (document.getElementById('1')as HTMLInputElement).value;
-      console.log(message);
-      (document.getElementById('1')as HTMLInputElement).value ="";
-      props.setMssg(message);
+      var message = (document.getElementById('1') as HTMLInputElement).value;
+      if (message.split(" ")[0])
+        socket.emit('msgToServer', {
+            room: props.room.name,
+            mssg : {
+            name: props.user?.user_name,
+            text: message}
+          });
+      (document.getElementById('1') as HTMLInputElement).value ="";
     };
     
-    // const onClickOutside = (() => {props?.setStatus("0");console.log("click out side")})
-    // const handleClickOutside = (event: any) => {
-    //   if (ref.current && !ref.current.contains(event.target)) {
-    //     onClickOutside();
-    //   }
-    // };
-    // useEffect(() => {
-    //     document.addEventListener('click', handleClickOutside);
-    //     return () => {
-    //       document.removeEventListener('click', handleClickOutside);
-    //     };
-    //   },[]);
-      
       const handle_submit = (e : any) => 
       { 
           if (e.key === 'Enter') 
@@ -152,14 +145,14 @@ const Lchat = (props:any) => {
         var passw = <div className="user_h" ><div className="user_p" ref={ref} ><ul>password:</ul><div className="user_input" ><input type="password" className="mssginput" id="pass" name="input" placeholder="Say something" onKeyDown={handle_submit} ></input><TopButton onClick={()=>{if ((document.getElementById('pass')as HTMLInputElement).value === room?.passw) setpass(false)}}  s_padding={{padding: '12px 16px'}} /></div> </div></div>
 
     if (props._slct === "0")
-        var selected = <LChatTopbar  title={otheruser?.user_name} Subtitle="Direct Messege" setStatus={props.setStatus} />;
+        var selected = <LChatTopbar otheruser={props?.otheruser} title={otheruser?.user_name} Subtitle="Direct Messege"  setStatus={props.setStatus} />;
     else
         selected = <LChatTopbar  title={room?.name} Subtitle="Room" setStatus={props.setStatus}  setStat={setStat} />
 
     if (stat === "0")
       var body = <Roominfo  setStat={setStat} stat={stat} setStatus={props.setStatus} />
     else if (stat === "1")
-      body = <>{selected}<Mssgs mssgs={room?.mssg} /><MssgCompos  add_banned_list={props.add_banned_list} handleSendMessage={handleSendMessage} /></>
+      body = <>{selected}<Mssgs  mssgs={mssgs} /><MssgCompos  add_banned_list={props.add_banned_list} handleSendMessage={handleSendMessage} /></>
     else
       body = <Search setStatus={setStat} room_users={room?.users} adduser={true} />
     return (

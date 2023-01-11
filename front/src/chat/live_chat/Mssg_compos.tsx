@@ -14,7 +14,7 @@ const MssgCompos = (props: any) => {
             props.handleSendMessage(e)
     }
     
-    if (room?.banned?.find((m:any)=>m?.user_name === user?.user_name) || (room?.banned[0] && room?.isdm === 1))
+    if (room?.muted?.find((m:any)=>m?.user_name === user?.user_name) || (room?.banned[0] && room?.isdm === 1))
         var swaah = <><ul className='title'>sorry, you can't send messages to this channel</ul></>
     else
          swaah  = <><input type="dee" className="mssginput" id='1'  placeholder="Say something" onKeyDown={handle_submit} ></input>
