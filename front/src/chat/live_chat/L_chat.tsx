@@ -5,17 +5,19 @@ import TopButton from '../TopButton'
 import fill from '../../img/Fill.svg'
 import opt from '../../img/Options.svg'
 import union from '../../img/Union1.svg'
-import block from '../../img/block.svg'
 import MssgCompos from './Mssg_compos'
 import { useState, useEffect} from 'react';
-import Mssg from '../DM/Mssg'
+import MssgC from '../DM/Mssg'
 import '../DM/DM.css'
 import Search from '../search/Search'
 import Roominfo from './room_info/Room_info'
 import { useGlobalContext } from '../Context'
+import Mssg from "../interfaces/Mssg"
+const Vector = require('../../img/Vector.svg').default as string;
+const block = require('../../img/block.svg').default as string;
 
 
-const Opt = (props:any) => {
+const Opt = (props:{text:string, img:string, onClick:React.MouseEventHandler<HTMLDivElement>}) => {
     return (
         <>
             <div className='acc' onClick={props?.onClick}>
@@ -29,9 +31,9 @@ const Opt = (props:any) => {
 }
 
 
-const LChatTopbar = (props:any) => {
+const LChatTopbar = (props:{title: string, Subtitle:string, setStatus?: Function, setStat?: Function}) => {
     const ref = React.useRef<HTMLInputElement>(null);
-    const { room, socket } = useGlobalContext()
+    const { room, socket,otheruser } = useGlobalContext()
 
     const [style, setstyle] = useState({display:"none"});
     const onClickOutside = () =>{ setstyle({display:"none"});}
@@ -68,7 +70,7 @@ const LChatTopbar = (props:any) => {
                 <div ref={ref} >
             {online}
             <div id="myDropdown" style={style} className="dropdown-content" >
-                <Opt text={ !room?.banned?.find((m:any)=>m.user_name===props?.otheruser?.user_name)?'Block user':'unblock user'} alt='' img={block}  onClick={()=>socket.emit('bannedToServer', {room_name: room.name, user_name: props.otheruser.user_name}, (m : any)=> console.log(m))}/>
+                <Opt text={ !room?.banned?.find((m:any)=>m.user_name===otheruser?.user_name)?'Block user':'unblock user'} img={block}  onClick={()=>socket.emit('bannedToServer', {room_name: room.name, user_name: otheruser.user_name}, (m : any)=> console.log(m))}/>
             </div>
             </div>
         </div>
@@ -76,17 +78,17 @@ const LChatTopbar = (props:any) => {
 }
 
 
-const Mssgs = (props:any) => {
+const Mssgs = (props:{mssgs: Mssg[]}) => {
 
 
   return (
     <div className="mssgs">
-        {props?.mssgs && props?.mssgs.slice(0).reverse().map((mssg:any, index:number) => { if (mssg?.name) return(<Mssg key={index} name={mssg.name} mssg={mssg}/>); return undefined;})}
+        {props?.mssgs && props?.mssgs.slice(0).reverse().map((mssg:any, index:number) => { if (mssg?.name) return(<MssgC key={index} name={mssg.name} mssg={mssg}/>); return undefined;})}
     </div>
         );
 }
 
-function useComponentVisible(setstatus: any) {
+function useComponentVisible(setstatus: Function) {
   const ref = React.useRef<HTMLInputElement>(null);
 
   const handleClickOutside = (event:any) => {
@@ -105,10 +107,10 @@ function useComponentVisible(setstatus: any) {
   return { ref };
 }
 
-const Lchat = (props:any) => {
-    const { room, otheruser, mssgs, socket} = useGlobalContext()
-    const [stat, setStat] = useState("1")
-    const [is, setis] = useState(0)
+const Lchat = (props:{_slct: string, setStatus: Function}) => {
+    const { user, room, otheruser, mssgs, socket} = useGlobalContext()
+    const [stat, setStat] = useState<string>("1")
+    const [is, setis] = useState<number>(0)
     const [pass, setpass] = useState(room?.status === 2?true:false)
 
     if (is === 0 && room?.status === 2)
@@ -126,9 +128,9 @@ const Lchat = (props:any) => {
       var message = (document.getElementById('1') as HTMLInputElement).value;
       if (message.split(" ")[0])
         socket.emit('msgToServer', {
-            room: props.room.name,
+            room: room.name,
             mssg : {
-            name: props.user?.user_name,
+            name: user?.user_name,
             text: message}
           });
       (document.getElementById('1') as HTMLInputElement).value ="";
@@ -142,17 +144,17 @@ const Lchat = (props:any) => {
       }
       
       // if (pass === true)
-        var passw = <div className="user_h" ><div className="user_p" ref={ref} ><ul>password:</ul><div className="user_input" ><input type="password" className="mssginput" id="pass" name="input" placeholder="Say something" onKeyDown={handle_submit} ></input><TopButton onClick={()=>{if ((document.getElementById('pass')as HTMLInputElement).value === room?.passw) setpass(false)}}  s_padding={{padding: '12px 16px'}} /></div> </div></div>
+        var passw = <div className="user_h" ><div className="user_p" ref={ref} ><ul>password:</ul><div className="user_input" ><input type="password" className="mssginput" id="pass" name="input" placeholder="Say something" onKeyDown={handle_submit} ></input><TopButton src={Vector} onClick={()=>{if ((document.getElementById('pass')as HTMLInputElement).value === room?.passw) setpass(false)}}  s_padding={{padding: '12px 16px'}} /></div> </div></div>
 
     if (props._slct === "0")
-        var selected = <LChatTopbar otheruser={props?.otheruser} title={otheruser?.user_name} Subtitle="Direct Messege"  setStatus={props.setStatus} />;
+        var selected = <LChatTopbar  title={otheruser?.user_name} Subtitle="Direct Messege"  setStatus={props.setStatus} />;
     else
         selected = <LChatTopbar  title={room?.name} Subtitle="Room" setStatus={props.setStatus}  setStat={setStat} />
 
     if (stat === "0")
       var body = <Roominfo  setStat={setStat} stat={stat} setStatus={props.setStatus} />
     else if (stat === "1")
-      body = <>{selected}<Mssgs  mssgs={mssgs} /><MssgCompos  add_banned_list={props.add_banned_list} handleSendMessage={handleSendMessage} /></>
+      body = <>{selected}<Mssgs  mssgs={mssgs} /><MssgCompos handleSendMessage={handleSendMessage} /></>
     else
       body = <Search setStatus={setStat} room_users={room?.users} adduser={true} />
     return (

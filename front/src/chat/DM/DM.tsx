@@ -1,9 +1,11 @@
 import * as React from 'react';
 import './DM.css'
 import { useGlobalContext} from '../Context'
-
 import Mssg  from './Mssg'
-const DM = (props: any) => {
+
+const empty = require('../../img/empty.svg').default as string;
+
+const DM = (props: {isDM?: boolean, isRoom?: boolean, onClick: Function,setStatus:Function}) => {
   const { user, rooms,setoUser } = useGlobalContext()
  
     if (rooms)
@@ -22,6 +24,8 @@ const DM = (props: any) => {
         return undefined;
       })
       console.log("DM ", body)
+    if (!body.find((m:any) => m !== undefined))
+      body = <div className='empty_state' ><img alt="" src={empty}/><ul className='empty_s_text'>No direct message yet</ul><ul className='empty_s_subtitle'>You will see your first direct message here when you receive it.</ul></div>
     return (
         <div className="Dm_root" >
           {body}
@@ -30,3 +34,5 @@ const DM = (props: any) => {
 }
 
 export default DM;
+
+

@@ -26,8 +26,8 @@ const SChatTopbar = (props: any) => {
 }
  
 
-const Room = (props:any) =>{
-    const [name,setName] = useState(props.name?props.name:"")
+const Room = () =>{
+    const [name,setName] = useState("")
 
 
     return (
@@ -85,7 +85,7 @@ const Passw = (props:any) =>{
 
 
 
-const Addroom = (props:any) => {
+const Addroom = (props:{setStatus: Function}) => {
     const [stt,setStt] = useState("0") ; //0:private, 1:public, 2:protected
     const {socket} = useGlobalContext()
     const handle_submit = () => {
@@ -100,7 +100,7 @@ const Addroom = (props:any) => {
         <>
         <SChatTopbar setStatus={props.setStatus} title="Room"  />
         <div className="room_body">
-            <Room name={props.room?.name}/>
+            <Room />
         <Security  setStt={setStt} stt={stt}/>
         {stt === "2" && <Passw />}
         <div className="submit"> 

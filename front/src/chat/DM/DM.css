@@ -142,3 +142,58 @@ padding: 8px 0px 0px 8px;
     height : 7px;
     width: 7px;
 }
+
+.empty_state{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    gap: 2px;
+    
+    width: auto;
+    height: 792px;
+}
+
+.empty_state img{
+    width: 127px;
+    height: 127px;
+}
+
+.empty_s_text{
+    width: 220px;
+    height: 22px;
+
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 22px;
+    /* identical to box height, or 138% */
+    padding: 0px;
+    text-align: center;
+    cursor: default;
+    color: #E2E5E9;
+
+    mix-blend-mode: normal;
+}
+
+.empty_s_subtitle{
+    width: 202px;
+    height: 36px;
+    padding: 0px;
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 10px;
+    line-height: 18px;
+    /* or 180% */
+
+    text-align: center;
+
+    /* Default-Light/Text-mid-emphasis */
+
+    color: #8A898E;
+
+    mix-blend-mode: normal;
+}

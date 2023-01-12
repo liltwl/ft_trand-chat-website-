@@ -10,7 +10,9 @@ import TopButton from './TopButton'
 import { useCallback,useEffect } from 'react';
 import Addroom from './add_room/Add_room'
 import { MyGlobalContext,useGlobalContext } from './Context'
-
+import User from './interfaces/User'
+import Room from './interfaces/Room'
+import Mssg from './interfaces/Mssg'
 
 
 const Vector = require('../img/Vector.svg').default as string;
@@ -59,9 +61,10 @@ const ChatTopBar = (props: any) => {
 
 
 const Homep = (props: any) => {
-    // const Haneselect = () => props?.setSlct(!props?._slct);
     const { setSlct,slct } = useGlobalContext()
 
+
+    
     if (props?._slct === "0")
         var swahh = <DM isDM={true} setStatus={props?.setStatus} onClick={props?.setStatus}/> ;
     else
@@ -83,19 +86,25 @@ const Homep = (props: any) => {
 
 
 
+
+
+
+
+
+
 const Chat = (props:any) => {
 
-    const [status, setStatus] = useState(undefined); // 0: normal, 1: livechat , 2: members, 3: add_room
-    const [slct, setSlct] = useState(undefined) as any;  // 0 :room and 1 DM
+    const [status, setStatus] = useState<string>(undefined); // 0: normal, 1: livechat , 2: members, 3: add_room
+    const [slct, setSlct] = useState<string>();  // 0 :room and 1 DM
     
     const socket = props.socket
     
-    const [user, setUser] = useState() as any;
-    const [room, setRoom] = useState(undefined) as any;
-    const [mssgs, setMssgs] = useState([])
-    const [rooms, setRooms] = useState([]);
-    const [otheruser, setoUser] = useState(undefined); 
-    const [users, setUsers] = useState([]);
+    const [user, setUser] = useState<User>();
+    const [room, setRoom] = useState<Room>();
+    const [mssgs, setMssgs] = useState<Mssg[]>([])
+    const [rooms, setRooms] = useState<Room[]>([]);
+    const [otheruser, setoUser] = useState<User[]>(undefined); 
+    const [users, setUsers] = useState<User[]>([]);
 
 
 
@@ -111,7 +120,9 @@ const Chat = (props:any) => {
 
     const setroomid_tostor = (tmp:any) => {
         sessionStorage.setItem("room_name", JSON.stringify(tmp));
-    }    
+    }
+
+
 
     const getUser = useCallback(() => {
         return (sessionStorage.getItem("user"));
@@ -126,14 +137,20 @@ const Chat = (props:any) => {
         return JSON.parse(sessionStorage.getItem("room_name"));
     }, []); 
 
+
+
+
     useEffect(() => {
         console.log("connection")
         const user1 = getUser();
-        socket.emit("connection", (JSON.parse(user1)?.user_name))
         const status1 = getstatus();
         const slct1 = getslct();
+
         if((JSON.parse(user1)?.user_name))
+        {
+            socket.emit("connection", (JSON.parse(user1)?.user_name))
             setUser(JSON.parse(user1));
+        }
         if (JSON.parse(status1))    
             setStatus(JSON.parse(status1))
         else
@@ -155,9 +172,6 @@ const Chat = (props:any) => {
     }, [status , slct,room])
 
 
-
-
-    
     useEffect(()=> {
         axios.get('data.json').then((data) => {
             setRooms(data.data.data.rooms); 
@@ -178,11 +192,16 @@ const Chat = (props:any) => {
 
 
 
+
+
+
     // { room: props.room?.name,  mssg : { name: props.user?.user_name,text: message}}
 
+
+
     
-    const messageListener =  useCallback((message:any) => {
-        const tmp = rooms?.map((m:any) => {
+    const messageListener =  useCallback((message:{room :string, mssg: Mssg}) => {
+        const tmp = rooms?.map((m:Room) => {
             if (m.name === message.room)
                 return {...m, mssg:[message.mssg]}
             else
@@ -191,13 +210,19 @@ const Chat = (props:any) => {
         setRooms(tmp);
         if (room?.name === message.room)
             setMssgs(mssgs =>[...mssgs, message.mssg]);
-    }, [rooms, room, mssgs])
+    }, [rooms, room])
 
     
-    const creatRoom = useCallback((Room:any) =>{
+
+
+
+    const creatRoom = useCallback((Room:Room) =>{
         setRooms(rooms =>[...rooms, Room]);
         console.log("creatroom:");
     }, [])
+
+
+
 
 
     const adduser =  useCallback((data: { room_name:string, user_name: string}) => {
@@ -212,6 +237,9 @@ const Chat = (props:any) => {
         if (room?.name === data.room_name)
             setRoom(tmp.find((m) => m.name === data.room_name))
     },[room?.name, rooms])
+
+
+
 
     const addbanned =  useCallback((data: { room_name:string, user_name: string}) => {
 
@@ -230,6 +258,10 @@ const Chat = (props:any) => {
             setRoom(tmp.find((m) => m.name === data.room_name))
         console.log("banned :", tmp)
     }, [room?.name, rooms])
+
+
+
+
     const deleteuser =  useCallback((data: { room_name:string, user_name: string}) => {
 
         const tmp = rooms?.map((m) => {
@@ -246,6 +278,9 @@ const Chat = (props:any) => {
         console.log("delete :", tmp)
     }, [room?.name, rooms])
     
+
+
+
     const addmuted =  useCallback((data: { room_name:string, user_name: string}) => {
 
         const tmp = rooms?.map((m) => {
@@ -261,9 +296,12 @@ const Chat = (props:any) => {
         setRooms(tmp);
         if (room?.name === data.room_name)
             setRoom(tmp.find((m) => m.name === data.room_name))
-        console.log("muted :", tmp)
     },[room?.name, rooms])
     
+
+
+
+
     const addadmin = useCallback((data: { room_name:string, user_name: string}) => {
 
         const tmp = rooms?.map((m) => {
@@ -282,6 +320,22 @@ const Chat = (props:any) => {
         console.log("admin :", tmp)
     },[room?.name, rooms])
 
+    
+
+
+
+    const deleteroom = useCallback((data: {room_name:string}) => {
+
+        const tmp = rooms?.filter((m) =>  m.name !== data.room_name);
+        setRooms(tmp);
+        setStatus("0");
+        if (room?.name === data.room_name)
+            setRoom(tmp.find((m) => m.name === data.room_name))
+    },[room?.name, rooms])
+
+
+
+
     useEffect(()=> {
 
         socket.on('msgToClient', messageListener );
@@ -291,6 +345,7 @@ const Chat = (props:any) => {
         socket.on('leaveToClient', deleteuser);
         socket.on('mutedToClient', addmuted);
         socket.on('adminToClient', addadmin);
+        socket.on('deleteToClient', deleteroom);
 
         
         return () => {
@@ -302,26 +357,26 @@ const Chat = (props:any) => {
             socket.off('leaveToServer', deleteuser);
             socket.off('mutedToClient', addmuted);
             socket.off('adminToClient', addadmin);
+            socket.off('deleteToClient', deleteroom);
+
         };
-    }, [messageListener,creatRoom,adduser, addbanned,deleteuser,addmuted,addadmin,socket])
+    }, [messageListener,creatRoom,adduser, addbanned,deleteuser,addmuted,addadmin,socket,deleteroom])
 
         
 
 
 
-
-
-    if (!user?.user_name)
+    if (!user?.user_name)   //hada how 3lach dayr lfilm
         var user_p = <div className="user_h"><div className="user_p"><ul>name :</ul><div className="user_input" ><input type="text" className="mssginput" id="1" name="input" placeholder="Say something"  ></input><TopButton onClick={(y:any)=>{setUser({user_name:(document.getElementById('1') as HTMLInputElement).value});setuser_tostor({user_name: (document.getElementById('1') as HTMLInputElement).value})}} src={Vector} s_padding={{padding: '12px 16px'}} /></div> </div></div>
    
     if (status === "0")
         var body = <Homep setoUser={setoUser} value={users.length - 1} otheruser={otheruser} user={user} _slct={slct} setMssgs={setMssgs} setRoom={setRoom} rooms={rooms} setSlct={setSlct} setStatus={setStatus} />;
     else if (status === "1")
-        body = <Lchat otheruser={otheruser} _slct={slct} users={users} user={user} room={room} mssgs={mssgs}   setStatus={setStatus} />
+        body = <Lchat _slct={slct} setStatus={setStatus} />
     else if (status === "3")
         body = <Addroom setStatus={setStatus} />
     else
-        body = <Search setoUser={setoUser} user={user} setSlct={setSlct} setStatus={setStatus} users={users}  />
+        body = <Search  setSlct={setSlct} setStatus={setStatus} />
 
     return (
       <>

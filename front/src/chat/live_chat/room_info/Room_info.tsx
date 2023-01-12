@@ -22,6 +22,8 @@ const add = require('../../../img/+.svg').default as string;
 
 
 const Schattopbar = (props: any) => {
+    const { socket, room, user } = useGlobalContext()
+
     const [style, setstyle] = useState({display:"none"})
     const onClickOutside = () => setstyle({display:"none"});
     const ref = React.useRef<HTMLInputElement>(null);
@@ -50,14 +52,16 @@ const Schattopbar = (props: any) => {
             <div style={style} className="dropdown-content">
                 {props.isadmin === false && 
                 <Opt text='Add user' img={add} onClick={() => props.setStat("2")} />}
-                <Opt text='EXIT' style={{color:"#FF0000"}} img={exit}  onClick={() => {props.setStatus("0")}} />
+                <Opt text='EXIT' style={{color:"#FF0000"}} img={exit}  onClick={() => {socket.emit('leaveToServer', {room_name: room.name, user_name: user.user_name});props.setStatus("0")}} />
                 {props.isadmin === false &&
-                <Opt text='Delete' style={{color:"#FF0000"}} img={del} onClick={() => {props.setStatus("0")}} />} 
+                <Opt text='Delete' style={{color:"#FF0000"}} img={del} onClick={() => {socket.emit("deleteToServer", {room_name: room.name})}} />} 
             </div>
             </div>
         </div>
     );
 }
+
+
 const Tab =  (props :any) => {
     if (props.stt === props.id)
         var style = {background: "#006CFF"}
@@ -69,7 +73,10 @@ const Tab =  (props :any) => {
     );
 }
 
-const Security = (props :any) => {
+
+
+
+const Security = (props :{isowner: boolean, setStt: Function, stt: string}) => {
     
     return (
         <>
@@ -86,7 +93,7 @@ const Security = (props :any) => {
 
 
 
-const Room = (props:any) =>{
+const Room = (props:{isadmin: boolean, name :string}) =>{
     const [stat, setStat] = useState(true)
     const [name,setName] = useState(props.name)
     const [add_pic, setadd_pic] = useState(<></>)
@@ -167,7 +174,7 @@ const User = (props:any) =>{
 
 
 
-const Passw = (props:any) =>{
+const Passw = (props:{value: string, setpassw: Function}) =>{
 
     return (
         <>
@@ -184,14 +191,15 @@ const Passw = (props:any) =>{
 
 
 
-const  Roominfo = (props:any) => {
+const  Roominfo = (props:{setStat:Function, stat: string, setStatus: Function}) => {
     const { user, room } = useGlobalContext()
 
     const [stt,setStt]  = useState(room.status.toString(10) as string ) ; //0:private, 1:public, 2:protected
     const [sh,setsh] = useState("");
+    const [search, setsearch] = useState("");
     const [passw,setpassw] = useState(room?.passw as string);
 
-    var users_p = room?.users.map((user1:any, index:number) => { return(<User is_user_admin={!room.admins.find((m:any)=>user.user_name===m.user_name)} isadmin={!room.admins.find((m:any)=>user1.user_name===m.user_name)} key={index} name={user1.user_name} user={user1}/>)})
+    var users_p = room?.users.map((user1:any, index:number) => { if (user1.user_name.includes(search)) return(<User is_user_admin={!room.admins.find((m:any)=>user.user_name===m.user_name)} isadmin={!room.admins.find((m:any)=>user1.user_name===m.user_name)} key={index} name={user1.user_name} user={user1}/>); return undefined;})
         
 
 
@@ -207,7 +215,7 @@ const  Roominfo = (props:any) => {
             <div className="search_tab">
                 <ul>Participants</ul>
                 <div className="s_search" style={{ padding: "0px", width:sh,transition: "all 0.5s"}}>
-                    <input className="M_input"  placeholder="Search" type="text" onSelect={() => setsh("100%")} onBlur={(e) => { if (!e.target.value) setsh("32px") }}/> 
+                    <input className="M_input" id="SH"  placeholder="Search" type="text" onChange={(e) =>{ setsearch(e.target.value)}} onSelect={() => setsh("100%")} onBlur={(e) => { if (!e.target.value) setsh("32px") }}/> 
                  </div>
             </div>
         <div className="users" style={{width: "100%",padding:"0px"}} >

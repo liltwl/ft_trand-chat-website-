@@ -7,7 +7,7 @@ import '../Home.css'
 import TopButton from '../TopButton'
 import Opt from '../live_chat/room_info/Opt';
 import { useGlobalContext } from '../Context'
-
+import User from '../interfaces/User'
 
 const fill = require('../../img/Fill.svg').default as string;
 const add = require('../../img/+.svg').default as string;
@@ -15,7 +15,7 @@ const Option = require('../../img/Options.svg').default as string;
 const ava = require('../../img/avatar.jpg') as string;
 
 
-const SChatTopbar = (props: any) => {
+const SChatTopbar = (props: {title: string, setStatus:Function }) => {
 
     return (
         <div className="Chat-top-bar" >
@@ -31,8 +31,8 @@ const SChatTopbar = (props: any) => {
 
 
 
-const User = (props: any) =>{
-    const { setRoom, socket, room, user } = useGlobalContext()
+const UserC = (props: any) =>{
+    const { setRoom, socket, room } = useGlobalContext()
     const [style, setstyle] = useState({display:"none"})
     const onClickOutside = () => setstyle({display:"none"});
     const ref = React.useRef<HTMLInputElement>(null);
@@ -89,19 +89,21 @@ const User = (props: any) =>{
 
 
 
-const Search = (props: any)  => {
-    const { user, users, rooms } = useGlobalContext()
+const Search = (props: {setSlct?:Function, setStatus?: Function, room_users?: User[], adduser?: boolean})  => {
+    const { user, users, rooms,setoUser,socket } = useGlobalContext()
+    const [search, setsearch] = useState("");
+
     console.log(rooms)
     if (users)
         var users_p = users.reverse().map((user_tmp: any, index: number) => { 
-    if (user_tmp?.user_name && user?.user_name !== user_tmp?.user_name && !props?.room_users?.find((m:any)=>user_tmp?.user_name === m?.user_name)) 
-        return(<User socket={props.socket}  room1={rooms.find((m:any)=> (m?.users?.find((m:any)=>m.user_name===user_tmp.user_name)&&m.users.find((m:any)=>user.user_name===m.user_name)))} adduser={props?.adduser} setSlct={props.setSlct} setoUser={props.setoUser} onClick={props.setStatus} key={index}  user={user_tmp}/>)
+    if (user_tmp?.user_name && user?.user_name !== user_tmp?.user_name && !props?.room_users?.find((m:any)=>user_tmp?.user_name === m?.user_name) && user_tmp.user_name.includes(search)) 
+        return(<UserC socket={socket}  room1={rooms.find((m:any)=> (m?.users?.find((m:any)=>m.user_name===user_tmp.user_name)&&m.users.find((m:any)=>user.user_name===m.user_name) ))} adduser={props?.adduser} setSlct={props.setSlct} setoUser={setoUser} onClick={props.setStatus} key={index}  user={user_tmp}/>)
     return undefined;})
     return (
         <>
-        <SChatTopbar setStatus={props.setStatus} title="Participants" />
+        <SChatTopbar setStatus={props?.setStatus} title="Participants" />
         <div className="search" >
-            <input className="M_input" placeholder="Search" type="text"/> 
+            <input className="M_input" id="SH2" placeholder="Search" onChange={(e) =>{ setsearch(e.target.value)}} type="text"/> 
         </div>
         <div className="users" >
             {users_p}
