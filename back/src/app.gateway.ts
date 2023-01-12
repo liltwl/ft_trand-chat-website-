@@ -44,7 +44,7 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   }
   
   @SubscribeMessage('createRoom')
-  async createRoom(client: Socket, room: any): Promise<void> {
+  async createRoom(client: Socket, room: {name: string, status: number, pass:string}): Promise<void> {
     // var tmp = this.appService.createroom(room?.name, Number(room?.status), room?.pass, client);
     console.log("creat room", room)
     this.appService.emitChannel(client, 'RoomCreated', undefined, {
@@ -62,14 +62,14 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
   private logger: Logger = new Logger('AppGateway');
   @SubscribeMessage('msgToServer')
-  async handleMessage(client: Socket, payload: any): Promise<void> {
+  async handleMessage(client: Socket, payload: {room :string, mssg: {name :string , text:string}}): Promise<void> {
   // var tmp = this.appService.addmssg(payload?.room, payload?.mssg, client);
   console.log("messeg :" , payload)
   this.appService.emitChannel(client, 'msgToClient', undefined, payload);
 }
 
   @SubscribeMessage('adduserToServer')
-  async addusertoroom(client: Socket, data: any): Promise<void> {
+  async addusertoroom(client: Socket, data:  { room_name:string, user_name: string}): Promise<void> {
 
     // this.appService.addusertoroom(data.room_name , data.user_name, client);
     this.appService.emitChannel(client, 'adduserToClient', undefined, data); //hadchi khassak tayafm3ah    { room_name:room.name, user_name: user.user_name}
@@ -79,14 +79,15 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
 
   @SubscribeMessage('deleteToServer')
-  async delete(client: Socket, data: any): Promise<void> {//data {room_name:string}
-    this.appService.deleteroom(client, data.room_name);  
+  async delete(client: Socket, data:  {room_name:string}): Promise<void> {//data {room_name:string}
+    // this.appService.deleteroom(client, data.room_name);  
+    this.appService.emitChannel(client, 'deleteToClient', undefined, data); //hadchi khassak tayafm3ah    { room_name:room.name, user_name: user.user_name}
+
   }
 
 
   @SubscribeMessage('leaveToServer')
-  async leave(client: Socket, data: any): Promise<void> {  //data {room_name:string, user_name: string}
-
+  async leave(client: Socket, data: { room_name:string, user_name: string}): Promise<void> {  //data {room_name:string, user_name: string}
     console.log("delete user :" , data)
 
     // this.appService.userleave(client, data.room_name, data.user_name);  
@@ -96,13 +97,13 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
 
   @SubscribeMessage('adminToServer')
-  async admin(client: Socket, data: any): Promise<void> {  //data {room_name:string, user_name: string}
+  async admin(client: Socket, data: { room_name:string, user_name: string}): Promise<void> {  //data {room_name:string, user_name: string}
     // this.appService.addadmin(client, data.room_name, data.user_name);
     this.appService.emitChannel(client, 'adminToClient', undefined, data); //hadchi khassak tayafm3ah    { room_name:room.name, user_name: user.user_name}
   }
   
   @SubscribeMessage('bannedToServer')
-  async ban(client: Socket, data: any): Promise<any> {//data {room_name:string, user_name: string, endof: date}
+  async ban(client: Socket, data: { room_name:string, user_name: string}): Promise<any> {//data {room_name:string, user_name: string, endof: date}
     // const tmp = this.appService.userban(client, data.room_name, data.user_name,155);
     console.log("ban user :" , data)
 
@@ -111,7 +112,7 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('mutedToServer')
-  async muted(client: Socket, data: any): Promise<any> {//data {room_name:string, user_name: string, endof: date}
+  async muted(client: Socket, data:  { room_name:string, user_name: string}): Promise<any> {//data {room_name:string, user_name: string, endof: date}
     // const tmp = this.appService.userban(client, data.room_name, data.user_name,155);
     console.log("muted user :" , data)
     
